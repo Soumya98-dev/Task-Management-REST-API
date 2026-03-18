@@ -1,6 +1,8 @@
 package com.example.taskmanagementrestapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,10 +15,12 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message="title cannot be blank")
     @Column(name="title")
     private String title;
 
     @Column(name="description")
+    @NotBlank(message = "description cannot be blank")
     private String description;
 
     public enum Status{
@@ -25,6 +29,7 @@ public class Task {
 
     @Column(name="status")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Status status;
 
     public enum Priority {
@@ -33,9 +38,11 @@ public class Task {
 
     @Column(name="priority")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private Priority priority;
 
     @Column(name="due_date")
+    @NotNull
     private LocalDate dueDate;
 
     @Column(name="created_at")

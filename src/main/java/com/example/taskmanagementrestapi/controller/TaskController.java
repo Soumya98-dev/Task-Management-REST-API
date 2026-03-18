@@ -1,7 +1,9 @@
 package com.example.taskmanagementrestapi.controller;
 
 import com.example.taskmanagementrestapi.entity.Task;
+import com.example.taskmanagementrestapi.exception.BadRequestException;
 import com.example.taskmanagementrestapi.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,6 @@ public class TaskController {
     @GetMapping("/tasks/{taskId}")
     public Task getTask(@PathVariable int taskId){
         Task findTask = taskService.findById(taskId);
-
         return findTask;
     }
 
@@ -37,11 +38,16 @@ public class TaskController {
     @PostMapping("/tasks")
     //* Return 201 Created when the method completes.
     @ResponseStatus(HttpStatus.CREATED)
-    public Task addTask(@RequestBody Task newTask){
-        validateTask(newTask);
+    public Task addTask(@Valid @RequestBody Task newTask){
         Task dbTask = taskService.save(newTask);
 
         return dbTask;
+    }
+
+    //Update Tasks
+    @PutMapping("/tasks/{taskId}")
+    public Task updateTask(@Valid @PathVariable int taskId, @RequestBody Task task){
+        return taskService.update(taskId, task);
     }
 
     //Delete
@@ -50,25 +56,6 @@ public class TaskController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable int taskId){
         taskService.deleteById(taskId);
-    }
-
-    //Validation
-    private void validateTask(Task newTask){
-        if(newTask.getTitle() == null  || newTask.getTitle().isBlank()){
-            throw new RuntimeException("Title is empty");
-        }
-        if(newTask.getDescription() == null || newTask.getDescription().isBlank()){
-            throw new RuntimeException("Description is empty");
-        }
-        if(newTask.getStatus() == null){
-            throw new RuntimeException("Status is not selected");
-        }
-        if(newTask.getPriority() == null){
-            throw new RuntimeException("Priority is not selected");
-        }
-        if(newTask.getDueDate() == null){
-            throw new RuntimeException("Due date is not entered");
-        }
     }
 
 }

@@ -1,6 +1,8 @@
 package com.example.taskmanagementrestapi.service;
 
 import com.example.taskmanagementrestapi.entity.Task;
+import com.example.taskmanagementrestapi.exception.BadRequestException;
+import com.example.taskmanagementrestapi.exception.NotFoundException;
 import com.example.taskmanagementrestapi.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +35,7 @@ public class TaskServiceImpl implements TaskService{
             return theTask.get();
         }
         else{
-            throw new RuntimeException("id not found: "+theId);
+            throw new NotFoundException("id not found: "+theId);
         }
     }
 
@@ -45,7 +47,18 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public Task update(Integer id, Task task) {
-        return null;
+        Optional<Task> findTask = taskRepository.findById(id);
+        if(findTask.isPresent()){
+            Task existing = findTask.get();
+            existing.setTitle(task.getTitle());
+            existing.setDescription(task.getDescription());
+            existing.setPriority(task.getPriority());
+            existing.setDueDate(task.getDueDate());
+            existing.setStatus(task.getStatus());
+            return taskRepository.save(existing);
+        } else {
+            throw new NotFoundException("id not found"+id);
+        }
     }
 
     @Override
@@ -55,8 +68,12 @@ public class TaskServiceImpl implements TaskService{
 
     @Override
     public void deleteById(Integer id) {
-        if(id != null)  taskRepository.deleteById(id);
-        else            throw new RuntimeException("Id not found");
+        Optional<Task> findTask = taskRepository.findById(id);
+        if(findTask.isPresent()){
+            taskRepository.deleteById(id);
+        } else{
+            throw new NotFoundException("id not found: "+id);
+        }
     }
 
     @Override
